@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author jc
  */
 public class CaptchaServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
 
     // letter 'l' not there, to avoid confusion with digit '1'
     // letter 'o' not there, to avoid confusion with digit '0'
