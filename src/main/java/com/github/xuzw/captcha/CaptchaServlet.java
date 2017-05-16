@@ -18,51 +18,38 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * Created on October 20, 2007, 7:48 PM.
- *
- * @author jc
- */
-public class CaptchaServlet extends HttpServlet {
+public abstract class CaptchaServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-
-    // letter 'l' not there, to avoid confusion with digit '1'
-    // letter 'o' not there, to avoid confusion with digit '0'
-    private static final String CAPTCHA_CHARS = "abcdefghijkmnpqrstuvwxyz";
 
     public static final String CAPTCHA_KEY = "CAPTCHA";
     private static Random rand = new Random(System.currentTimeMillis());
 
-    /**
-     * Returns a String of specified length with random characters.
-     */
-    public static String getCaptchaString(int length) {
+    public abstract String getCaptchaChars();
+
+    public String getCaptchaString(int length) {
+        String captchaChars = getCaptchaChars();
         StringBuffer captcha = new StringBuffer(length);
         for (int i = 0; i < length; i++) {
-            captcha.append(CAPTCHA_CHARS.charAt(rand.nextInt(CAPTCHA_CHARS.length())));
+            captcha.append(captchaChars.charAt(rand.nextInt(captchaChars.length())));
         }
         return captcha.toString();
     }
 
-    public static String generateCaptchaString(HttpServletRequest request, int length) {
+    public String generateCaptchaString(HttpServletRequest request, int length) {
         String captchaString = getCaptchaString(length);
         request.getSession(true).setAttribute(CAPTCHA_KEY, captchaString);
         return captchaString;
     }
 
     public static String getStoredCaptchaString(HttpServletRequest request) {
-        // requires an http session. create one if not present
         return (String) request.getSession(true).getAttribute(CAPTCHA_KEY);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // no caching
-        response.setHeader("Cache-Control", "no-cache"); // HTTP 1.1
-        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
-        response.setDateHeader("Expires", 0); // prevents caching at the proxy
-                                              // server
+        response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
 
-        // default values
         Color background = Color.WHITE;
         Color foreground = new Color(64, 64, 64);
         int length = 5;
@@ -166,5 +153,4 @@ public class CaptchaServlet extends HttpServlet {
             out.close();
         }
     }
-
 }
